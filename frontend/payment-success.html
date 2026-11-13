@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment success</title>
+    <link rel="stylesheet" href="/css/payment.css" />
+    <style>
+      body { margin: 0; padding: 32px 16px; background: #f6f7fb; font-family: Arial, sans-serif; }
+      .payment-container { max-width: 740px; margin: 0 auto; }
+      .success-card { background: white; border-radius: 22px; padding: 30px; text-align: center; box-shadow: 0 18px 42px rgba(16,24,40,0.08); }
+      .success-icon { width: 80px; height: 80px; border-radius: 50%; background: #dcfce7; color: #166534; display: grid; place-items: center; font-size: 2.5rem; margin: 0 auto 16px; }
+      .success-details { background: #f8fafc; border: 1px solid rgba(16,24,40,0.08); border-radius: 16px; padding: 18px; margin: 18px 0; text-align: left; }
+      .main-button { display: inline-flex; margin-top: 12px; border: none; background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; padding: 12px 18px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+      .message { color: #667085; margin-top: 12px; }
+    </style>
+    <link rel="stylesheet" href="/css/theme.css" />
+    <script src="/js/theme.js" defer></script>
+  </head>
+  <body>
+    <main class="payment-container">
+      <section class="success-card">
+        <div class="success-icon">✓</div>
+        <h1 id="successHeading">Payment confirmation</h1>
+        <p id="successMessage">Your payment status and appointment details are shown below.</p>
+        <p>Thank you for booking with <span data-brand-name>this business</span>.</p>
+
+        <div class="success-details" id="confirmationDetails">Loading booking details...</div>
+
+        <p class="message">Development mode: payment records are mock-verified and stored securely in the backend for testing and demo use.</p>
+
+        <button class="main-button" id="backHomeButton" type="button">Back to home</button>
+      </section>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script>
+      const details = document.getElementById("confirmationDetails");
+      const heading = document.getElementById("successHeading");
+      const statusMessage = document.getElementById("successMessage");
+      const currency = new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 2
+      });
+
+      try {
+        const storedConfirmation = localStorage.getItem("paymentConfirmation");
+        const confirmation = storedConfirmation ? JSON.parse(storedConfirmation) : null;
+
+        if (!confirmation || typeof confirmation !== "object" || Array.isArray(confirmation)) {
+          details.textContent = "No payment confirmation was found. Return to your booking to review its status.";
+        } else {
+          heading.textContent = confirmation.paymentStatus === "PENDING" ? "Payment pending" : "Payment confirmation";
+          statusMessage.textContent = confirmation.paymentStatus === "PENDING"
+            ? "Your appointment is recorded, but payment is still pending."
+            : `The payment service reported status: ${confirmation.paymentStatus || "Unknown"}.`;
+
+          const amount = Number(confirmation.totalAmount);
+          const servicePrice = Number(confirmation.servicePrice);
+          const charges = Number(confirmation.charges);
+          const fields = [
+            ["Booking ID", confirmation.bookingId],
+            ["Customer", confirmation.name],
+            ["Email", confirmation.email],
+            ["Phone", confirmation.phone],
+            ["Service", confirmation.serviceName],
+            ["Duration", confirmation.serviceDuration ? `${confirmation.serviceDuration} mins` : ""],
+            ["Staff", confirmation.staffName],
+            ["Date", confirmation.date],
+            ["Time", confirmation.time],
+            ["Service price", Number.isFinite(servicePrice) ? currency.format(servicePrice) : ""],
+            ["Additional charges", Number.isFinite(charges) ? currency.format(charges) : ""],
+            ["Payment method", confirmation.paymentMethod],
+            ["Payment status", confirmation.paymentStatus],
+            ["Total", Number.isFinite(amount) ? currency.format(amount) : ""],
+            ["Reference", confirmation.reference]
+          ];
+
+          details.replaceChildren();
+          fields.forEach(([label, value]) => {
+            const text = value == null ? "" : String(value).trim();
+            if (!text || ["undefined", "null"].includes(text.toLowerCase())) return;
+
+            const row = document.createElement("p");
+            const title = document.createElement("strong");
+            title.textContent = `${label}: `;
+            row.append(title, document.createTextNode(text));
+            details.appendChild(row);
+          });
+        }
+      } catch (error) {
+        console.error("Unable to read payment confirmation from localStorage:", error);
+        details.textContent = "Payment details could not be read. Please contact the business with your booking ID.";
+      }
+
+      if (localStorage.getItem("customerToken") || localStorage.getItem("adminToken")) {
+        window.apiFetch("/api/business")
+          .then((business) => {
+            document.querySelectorAll("[data-brand-name]").forEach((element) => {
+              element.textContent = business.name || "this business";
+            });
+          })
+          .catch((error) => console.error("Unable to load business name:", error));
+      }
+
+      document.getElementById("backHomeButton").addEventListener("click", () => {
+        window.location.href = window.shopRoute ? window.shopRoute("/") : "/";
+      });
+    </script>
+  </body>
+</html>

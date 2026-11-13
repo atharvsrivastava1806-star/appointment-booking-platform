@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Salon, Your Style | Business Booking</title>
+    <meta
+      name="description"
+      content="Modern multi-business booking and management website"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <script src="/js/theme.js" defer></script>
+  </head>
+  <body class="welcome-entry">
+    <header id="siteHeader" hidden>
+      <div class="container navbar">
+        <a href="/" class="brand" aria-label="Business homepage">
+          <img
+            data-brand-logo
+            src="/assets/logo-placeholder.svg"
+            alt="Business logo"
+          />
+          <span data-brand-name>Business Name</span>
+        </a>
+
+        <nav class="nav-links" aria-label="Main navigation">
+          <a href="/">Home</a>
+        </nav>
+
+        <div class="nav-actions">
+          <a class="btn btn-primary" href="/booking.html">Book Now</a>
+          <button class="mobile-toggle" aria-label="Open menu">☰</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="welcome-hero" id="guestWelcome" aria-labelledby="welcomeTitle">
+        <div class="welcome-visual" aria-hidden="true">
+          <img data-welcome-image src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&amp;fit=crop&amp;w=2000&amp;q=85" alt="" />
+        </div>
+        <div class="container welcome-grid">
+          <div class="welcome-copy">
+            <p class="eyebrow">A better appointment experience</p>
+            <h1 id="welcomeTitle">Your Salon, Your Style</h1>
+            <p data-welcome-description>
+              Discover a salon that fits your style and schedule, then book an appointment with confidence.
+            </p>
+            <div class="welcome-actions">
+              <a class="btn btn-primary" href="/login.html">
+                <strong>Continue as Customer</strong>
+                <small>Find services and book appointments</small>
+              </a>
+              <a class="btn btn-secondary" href="/salon-owner-login.html">
+                <strong>Continue as Salon Admin</strong>
+                <small>Salon owner sign-in and registration</small>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div id="fullHomeContent" class="customer-home" hidden>
+      <section class="hero">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">Your next appointment starts here</p>
+            <h1 data-hero-title>Welcome</h1>
+            <p data-hero-description>
+              Browse nearby salons or choose an appointment time that suits you.
+            </p>
+
+            <div class="hero-actions">
+              <a href="/booking.html" class="btn btn-primary">Book Appointment</a>
+              <a href="/contact.html#salonMap" class="btn btn-ghost">Find Nearby Salons</a>
+            </div>
+          </div>
+          <div class="hero-visual">
+            <span class="hero-decoration hero-decoration--ring" aria-hidden="true"></span>
+            <span class="hero-decoration hero-decoration--dots" aria-hidden="true"></span>
+            <img
+              data-hero-image
+              src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1400&q=85"
+              alt="Professional salon interior"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section class="section testimonial-section" id="testimonials">
+        <div class="container">
+          <div class="section-header">
+            <p>Customer Reviews</p>
+            <h2>A few kind words from our community</h2>
+            <span>Real approved reviews appear when available. Fictional examples are clearly marked as demo reviews.</span>
+          </div>
+
+          <div id="reviewList" class="review-grid"></div>
+        </div>
+      </section>
+      </div>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/main.js"></script>
+  </body>
+</html>

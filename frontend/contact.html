@@ -1,0 +1,446 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact | Business Booking</title>
+    <meta name="description" content="Find our address, phone, email and send a message" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <style>
+      .page-hero { padding: 64px 0 28px; }
+      .contact-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .contact-card, .form-card {
+        background: white;
+        border: 1px solid rgba(16,24,40,0.08);
+        border-radius: 18px;
+        padding: 26px;
+      }
+      .info-list { display: grid; gap: 20px; }
+      .info-item { display: flex; gap: 12px; }
+      form { display: grid; gap: 14px; }
+      input, textarea, button { font: inherit; }
+      input, textarea {
+        width: 100%;
+        border: 1px solid rgba(16,24,40,0.12);
+        border-radius: 10px;
+        padding: 12px 14px;
+      }
+      .alert { padding: 10px 12px; border-radius: 10px; margin-top: 16px; }
+      .alert.success { background: #dcfce7; color: #166534; }
+      .alert.error { background: #fee2e2; color: #991b1b; }
+      .map-card {
+        background: white;
+        border: 1px solid rgba(16,24,40,0.08);
+        border-radius: 18px;
+        padding: 24px;
+        margin-top: 24px;
+      }
+      #salonMap {
+        height: clamp(320px, 52vh, 520px);
+        min-height: 320px;
+        width: 100%;
+        min-width: 0;
+        border-radius: 16px;
+        overflow: hidden;
+        margin-top: 18px;
+      }
+      .location-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .nearby-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 18px;
+      }
+      .nearby-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        border: 1px solid rgba(16,24,40,0.08);
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: #faf7ff;
+      }
+      .nearby-item.recommended {
+        border-color: #8b5cf6;
+        background: #f3edff;
+        box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.15);
+      }
+      @media (max-width: 760px) { .contact-grid { grid-template-columns: 1fr; } }
+    </style>
+    <link rel="stylesheet" href="/css/theme.css" />
+    <script src="/js/theme.js" defer></script>
+  </head>
+  <body data-authentication-required>
+    <header>
+      <div class="container navbar">
+        <a href="/" class="brand">
+          <img data-brand-logo src="/assets/logo-placeholder.svg" alt="Business logo" />
+          <span data-brand-name>Business Name</span>
+        </a>
+        <nav class="nav-links" aria-label="Main navigation">
+          <a href="/">Home</a>
+        </nav>
+        <div class="nav-actions">
+          <a class="btn btn-primary" href="/booking.html">Book Now</a>
+          <button class="mobile-toggle" aria-label="Open menu">☰</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="page-hero">
+        <div class="container section-header">
+          <p>Contact us</p>
+          <h2>We’re ready to help</h2>
+          <span>Need support, pricing, or a custom appointment plan? Send us a message.</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container contact-grid">
+          <div class="contact-card">
+            <h3>Contact information</h3>
+            <div class="info-list">
+              <div class="info-item">
+                <div>📞</div>
+                <div><strong>Phone</strong><br /><span data-phone></span></div>
+              </div>
+              <div class="info-item">
+                <div>✉️</div>
+                <div><strong>Email</strong><br /><span data-email></span></div>
+              </div>
+              <div class="info-item">
+                <div>📍</div>
+                <div>
+                  <strong>Address</strong><br />
+                  <span data-address>Address not provided</span><br />
+                  <a data-business-map href="#" target="_blank" rel="noopener noreferrer" hidden>Open in Google Maps</a>
+                </div>
+              </div>
+              <div class="info-item">
+                <div>🕒</div>
+                <div><strong>Business Hours</strong><br /><span data-hours></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h3>Send a message</h3>
+            <form id="contactForm">
+              <input id="name" type="text" placeholder="Your name" required />
+              <input id="email" type="email" placeholder="Email address" required />
+              <input id="phone" type="tel" placeholder="Phone number" />
+              <input id="subject" type="text" placeholder="Subject" />
+              <textarea id="message" rows="5" placeholder="How can we help?" required></textarea>
+              <button class="btn btn-primary" type="submit">Send message</button>
+            </form>
+            <div id="contactMessage" class="message"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="map-card">
+            <div class="location-bar">
+              <div>
+                <p class="eyebrow">Salon and spa finder</p>
+                <h3>Nearby beauty & wellness salons</h3>
+              </div>
+              <button class="btn btn-secondary" id="useLocationBtn" type="button">Use my location</button>
+            </div>
+            <div id="salonMap" role="application" aria-label="Interactive map showing nearby salons and spas"></div>
+            <div id="locationStatus" class="message" aria-live="polite"></div>
+            <div class="nearby-list" id="nearbyList" aria-live="polite"></div>
+            <small>Nearby places are sourced from OpenStreetMap and may not include every business.</small>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script>
+      const form = document.getElementById("contactForm");
+      const messageBox = document.getElementById("contactMessage");
+      const mapHost = document.getElementById("salonMap");
+      const nearbyList = document.getElementById("nearbyList");
+      const locationStatus = document.getElementById("locationStatus");
+      const useLocationBtn = document.getElementById("useLocationBtn");
+
+      const SEARCH_RADIUS_METERS = 10000;
+      const OVERPASS_ENDPOINTS = [
+        "https://overpass-api.de/api/interpreter",
+        "https://overpass.kumi.systems/api/interpreter"
+      ];
+
+      const setMessage = (text, type = "success") => {
+        messageBox.innerHTML = `<div class="alert ${type}">${text}</div>`;
+      };
+
+      const setLocationStatus = (text, type = "success") => {
+        locationStatus.innerHTML = `<div class="alert ${type}">${text}</div>`;
+      };
+
+      const getDistanceKm = (lat1, lng1, lat2, lng2) => {
+        const toRad = (value) => (value * Math.PI) / 180;
+        const earthRadiusKm = 6371;
+        const dLat = toRad(lat2 - lat1);
+        const dLng = toRad(lng2 - lng1);
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+          Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      };
+
+      const escapeContactHTML = (value) => String(value).replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[character]);
+
+      const getSalonAddress = (tags) => {
+        const street = [tags["addr:housenumber"], tags["addr:street"]].filter(Boolean).join(" ");
+        return [
+          street,
+          tags["addr:suburb"],
+          tags["addr:city"] || tags["addr:town"] || tags["addr:village"]
+        ].filter(Boolean).join(", ") || "Address not listed";
+      };
+
+      const fetchNearbySalons = async (lat, lng) => {
+        const queryLat = Number(lat.toFixed(2));
+        const queryLng = Number(lng.toFixed(2));
+        const query = `[out:json][timeout:25];(nwr(around:${SEARCH_RADIUS_METERS},${queryLat},${queryLng})["shop"~"^(hairdresser|beauty|massage|spa)$"];nwr(around:${SEARCH_RADIUS_METERS},${queryLat},${queryLng})["leisure"="beauty_salon"];nwr(around:${SEARCH_RADIUS_METERS},${queryLat},${queryLng})["healthcare"="beauty_therapy"];);out center tags 60;`;
+        let lastError;
+        for (const endpoint of OVERPASS_ENDPOINTS) {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 12000);
+          try {
+            const response = await fetch(endpoint, {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+              body: `data=${encodeURIComponent(query)}`,
+              signal: controller.signal
+            });
+            if (!response.ok) {
+              throw new Error(`Nearby place search failed (HTTP ${response.status}).`);
+            }
+            const data = await response.json();
+            return (data.elements || [])
+            .map((element) => {
+              const placeLat = element.lat ?? element.center?.lat;
+              const placeLng = element.lon ?? element.center?.lon;
+              if (!Number.isFinite(placeLat) || !Number.isFinite(placeLng)) return null;
+
+              return {
+                id: `${element.type}-${element.id}`,
+                name: element.tags?.name || "Unnamed salon or spa",
+                address: getSalonAddress(element.tags || {}),
+                lat: placeLat,
+                lng: placeLng,
+                distanceKm: getDistanceKm(lat, lng, placeLat, placeLng)
+              };
+            })
+            .filter(Boolean)
+            .sort((a, b) => a.distanceKm - b.distanceKm);
+          } catch (error) {
+            lastError = error;
+          } finally {
+            clearTimeout(timeout);
+          }
+        }
+        throw lastError || new Error("Nearby place search failed.");
+      };
+
+      const showAreaMarker = (lat, lng, label) => {
+        window._salonMap.eachLayer((layer) => {
+          if (layer instanceof L.Marker || layer instanceof L.Circle) {
+            window._salonMap.removeLayer(layer);
+          }
+        });
+        L.marker([lat, lng]).addTo(window._salonMap).bindPopup(escapeContactHTML(label));
+      };
+
+      const renderNearbySalons = (salons, areaLat, areaLng, areaLabel) => {
+        nearbyList.innerHTML = "";
+        if (!window._salonMap) return;
+
+        showAreaMarker(areaLat, areaLng, areaLabel);
+
+        const places = salons.slice(0, 30);
+        nearbyList.innerHTML = places.map((salon) => `
+          <div class="nearby-item">
+            <div>
+              <strong>${escapeContactHTML(salon.name)}</strong><br />
+              <small>${escapeContactHTML(salon.address)}</small><br />
+              <a href="https://www.openstreetmap.org/?mlat=${salon.lat}&mlon=${salon.lng}#map=17/${salon.lat}/${salon.lng}" target="_blank" rel="noopener noreferrer">Open map</a>
+            </div>
+            <div><strong>${salon.distanceKm.toFixed(1)} km</strong></div>
+          </div>
+        `).join("");
+
+        places.forEach((salon) => {
+          const marker = L.marker([salon.lat, salon.lng]).addTo(window._salonMap);
+          marker.bindPopup(`<strong>${escapeContactHTML(salon.name)}</strong><br>${escapeContactHTML(salon.address)}<br><small>${salon.distanceKm.toFixed(1)} km from the map center</small>`);
+        });
+
+        if (!places.length) {
+          setLocationStatus("No salon or spa listings were found in OpenStreetMap near this approximate area. The map remains available; try Use My Location for a more relevant search.", "error");
+          return;
+        }
+
+        const bounds = L.latLngBounds([[areaLat, areaLng], ...places.map((salon) => [salon.lat, salon.lng])]);
+        window._salonMap.fitBounds(bounds, { padding: [24, 24], maxZoom: 14 });
+      };
+
+      const getApproximateArea = () => {
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+        if (/^Asia\/(Kolkata|Calcutta|Colombo|Kathmandu|Dhaka)$/.test(timeZone)) {
+          return { lat: 22.5, lng: 82.5, zoom: 4, label: "Approximate Indian subcontinent area (based on browser time zone)" };
+        }
+        if (timeZone.startsWith("Asia/")) {
+          return { lat: 34, lng: 100, zoom: 3, label: "Approximate Asia area (based on browser time zone)" };
+        }
+        if (timeZone.startsWith("Europe/")) {
+          return { lat: 50, lng: 15, zoom: 4, label: "Approximate Europe area (based on browser time zone)" };
+        }
+        if (timeZone.startsWith("America/")) {
+          return { lat: 39, lng: -98, zoom: 3, label: "Approximate Americas area (based on browser time zone)" };
+        }
+        if (timeZone.startsWith("Australia/")) {
+          return { lat: -25, lng: 134, zoom: 3, label: "Approximate Australia area (based on browser time zone)" };
+        }
+        return { lat: 20, lng: 0, zoom: 2, label: "World map view (browser time zone did not identify a region)" };
+      };
+
+      const initMap = () => {
+        if (!mapHost || !window.L) {
+          setLocationStatus("The map library could not be loaded. Check your connection and reload the page.", "error");
+          return;
+        }
+
+        if (!window._salonMap) {
+          window._salonMap = L.map(mapHost, { scrollWheelZoom: true });
+          const tileLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: '&copy; OpenStreetMap contributors'
+          }).addTo(window._salonMap);
+          let tileErrorReported = false;
+          tileLayer.on("tileerror", () => {
+            if (tileErrorReported) return;
+            tileErrorReported = true;
+            setLocationStatus("Map tiles could not be loaded. Check your internet connection; nearby place results may still be available.", "error");
+          });
+        }
+
+        const area = getApproximateArea();
+        window._salonMap.setView([area.lat, area.lng], area.zoom);
+        showAreaMarker(area.lat, area.lng, area.label);
+        setTimeout(() => window._salonMap?.invalidateSize(), 0);
+        window.addEventListener("resize", () => window._salonMap?.invalidateSize());
+        setLocationStatus(`${area.label}. This is a broad estimate, not your exact location. Loading nearby OpenStreetMap listings...`);
+
+        fetchNearbySalons(area.lat, area.lng)
+          .then((salons) => {
+            renderNearbySalons(salons, area.lat, area.lng, area.label);
+            if (salons.length) {
+              setLocationStatus(`Showing ${Math.min(salons.length, 30)} OpenStreetMap salon and spa listings near the ${area.label.toLowerCase()}.`);
+            }
+          })
+          .catch((error) => {
+            console.error("Approximate-area salon search failed:", error);
+            setLocationStatus("The map is available, but nearby OpenStreetMap listings could not be loaded. Try again later or use My Location.", "error");
+          });
+      };
+
+      const requestUserLocation = () => {
+        if (!window._salonMap || !window.L) {
+          setLocationStatus("Map is not available right now. Please reload and try again.", "error");
+          return;
+        }
+
+        if (!navigator.geolocation) {
+          setLocationStatus('Geolocation is not supported in this browser.', 'error');
+          return;
+        }
+
+        useLocationBtn.disabled = true;
+        setLocationStatus("Requesting permission to access your location...");
+
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            window._salonMap.setView([lat, lng], 13);
+            showAreaMarker(lat, lng, "Your selected approximate location");
+            setTimeout(() => window._salonMap?.invalidateSize(), 0);
+            setLocationStatus("Searching OpenStreetMap for salons and spas within 10 km...");
+
+            try {
+              const salons = await fetchNearbySalons(lat, lng);
+              renderNearbySalons(salons, lat, lng, "Your selected approximate location");
+              if (salons.length) {
+                setLocationStatus(`Showing ${Math.min(salons.length, 30)} nearby salons and spas, sorted by distance.`, "success");
+              }
+            } catch (error) {
+              console.error("Nearby salon search failed:", error);
+              const message = error.name === "AbortError"
+                ? "Nearby place search timed out. Please try again."
+                : error.message || "Unable to search for nearby salons right now.";
+              setLocationStatus(message, "error");
+            } finally {
+              useLocationBtn.disabled = false;
+            }
+          },
+          (error) => {
+            const message = error.code === error.PERMISSION_DENIED
+              ? "Location permission was denied. Allow location access in your browser settings and try again."
+              : error.code === error.TIMEOUT
+                ? "Could not determine your location before the request timed out. Please try again."
+                : "Your location is unavailable. Check your device location settings and try again.";
+            setLocationStatus(message, "error");
+            useLocationBtn.disabled = false;
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      };
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          const payload = {
+            name: document.getElementById("name").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            phone: document.getElementById("phone").value.trim(),
+            subject: document.getElementById("subject").value.trim(),
+            message: document.getElementById("message").value.trim()
+          };
+
+          const data = await window.apiFetch("/api/contacts", { method: "POST", body: payload });
+          setMessage(data.message || "Message sent successfully.");
+          form.reset();
+        } catch (error) {
+          setMessage(error.message || "Unable to send your message.", "error");
+        }
+      });
+
+      useLocationBtn.addEventListener("click", requestUserLocation);
+      initMap();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,147 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book Appointment | Business Booking</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <style>
+      body { background: #f6f7fb; }
+      .booking-shell {
+        max-width: 1200px;
+        margin: 40px auto;
+        display: grid;
+        grid-template-columns: 1.5fr 0.8fr;
+        gap: 24px;
+      }
+      .panel {
+        background: white;
+        border: 1px solid rgba(16,24,40,0.08);
+        border-radius: 22px;
+        padding: 24px;
+      }
+      .panel h2 { margin-bottom: 18px; }
+      .field { display: grid; gap: 8px; margin-bottom: 18px; }
+      .service-grid, .staff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+      .option-card, .staff-card {
+        border: 1px solid rgba(16,24,40,0.12);
+        border-radius: 16px;
+        background: #fff;
+        padding: 16px;
+        cursor: pointer;
+        transition: 0.2s ease;
+      }
+      .option-card.selected, .staff-card.selected {
+        border: 2px solid #8b5cf6;
+        background: #f7f2ff;
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+      }
+      .option-card strong, .staff-card strong { display: block; font-size: 1.1rem; }
+      .option-card small, .staff-card small { color: #667085; }
+      .time-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 10px; }
+      .time-slot {
+        border: 1px solid rgba(16,24,40,0.12);
+        border-radius: 10px;
+        background: white;
+        padding: 10px;
+        cursor: pointer;
+      }
+      .time-slot.selected {
+        background: #8b5cf6;
+        color: white;
+      }
+      .summary-panel {
+        position: sticky;
+        top: 90px;
+        height: fit-content;
+      }
+      .summary-row { display: flex; justify-content: space-between; gap: 20px; padding: 12px 0; border-bottom: 1px solid rgba(16,24,40,0.08); }
+      .summary-total { font-size: 2rem; font-weight: 800; }
+      .helper { color: #667085; font-size: 0.92rem; }
+      input, select, textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(16,24,40,0.12);
+      }
+      @media (max-width: 900px) { .booking-shell { grid-template-columns: 1fr; } .summary-panel { position: static; } }
+    </style>
+    <link rel="stylesheet" href="/css/theme.css" />
+    <script src="/js/theme.js" defer></script>
+  </head>
+  <body data-authentication-required>
+    <header>
+      <div class="container navbar">
+        <a href="/" class="brand">
+          <img data-brand-logo src="/assets/logo-placeholder.svg" alt="Business logo" />
+          <span data-brand-name>Business Name</span>
+        </a>
+        <nav class="nav-links" aria-label="Main navigation">
+          <a href="/">Home</a>
+        </nav>
+        <div class="nav-actions">
+          <a class="btn btn-primary" href="/booking.html">Book Now</a>
+          <button class="mobile-toggle" aria-label="Open menu">☰</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container booking-shell">
+      <section class="panel">
+        <h2>Book appointment</h2>
+
+        <div class="field">
+          <label>Choose service</label>
+          <div id="bookingServiceList" class="service-grid"></div>
+        </div>
+
+        <div class="field">
+          <label>Choose staff</label>
+          <div id="staffList" class="staff-grid"></div>
+        </div>
+
+        <div class="field">
+          <label for="appointmentDate">Choose date</label>
+          <input id="appointmentDate" type="date" required />
+        </div>
+
+        <div class="field">
+          <label>Available time slots</label>
+          <div id="timeSlots" class="time-grid"></div>
+        </div>
+
+        <div class="field">
+          <label>Your details</label>
+          <div class="row" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <input id="customerName" type="text" placeholder="Full name" required />
+            <input id="customerPhone" type="tel" placeholder="Phone" required />
+          </div>
+        </div>
+
+        <div class="field">
+          <input id="customerEmail" type="email" placeholder="Email address" required />
+          <textarea id="customerNotes" rows="4" placeholder="Optional notes"></textarea>
+        </div>
+
+        <button id="confirmBooking" class="btn btn-primary" type="button">Review Booking</button>
+        <div id="bookingMessage" style="margin-top: 12px;"></div>
+      </section>
+
+      <aside class="panel summary-panel">
+        <h3>Booking summary</h3>
+        <div class="summary-row"><span>Service</span><strong id="summaryService">Not selected</strong></div>
+        <div class="summary-row"><span>Duration</span><strong id="summaryDuration">-</strong></div>
+        <div class="summary-row"><span>Staff</span><strong id="summaryStaff">Any Available Staff</strong></div>
+        <div class="summary-row"><span>Date</span><strong id="summaryDate">-</strong></div>
+        <div class="summary-row"><span>Time</span><strong id="summaryTime">-</strong></div>
+        <div class="summary-row"><span>Price</span><strong id="summaryPrice">₹0</strong></div>
+        <div class="summary-row" style="margin-top: 18px;"><span>Total</span><strong class="summary-total" id="summaryTotal">₹0</strong></div>
+        <p class="helper" style="margin-top: 16px;">Appointments are confirmed after payment is complete or arranged at the venue.</p>
+      </aside>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/booking.js"></script>
+  </body>
+</html>
