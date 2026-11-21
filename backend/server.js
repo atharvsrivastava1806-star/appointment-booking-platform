@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
+const { getJwtSecret } = require("./config/jwt");
 
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
@@ -17,6 +18,7 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+getJwtSecret();
 connectDB();
 
 app.use(express.json({ limit: "12mb" }));

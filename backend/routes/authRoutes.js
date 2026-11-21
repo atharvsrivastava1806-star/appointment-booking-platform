@@ -6,9 +6,10 @@ const User = require("../models/User");
 const Business = require("../models/Business");
 const { initializeBusinessSettings } = require("../utils/businessDefaults");
 const { protect } = require("../middleware/auth");
+const { getJwtSecret } = require("../config/jwt");
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || "development-secret";
+const JWT_SECRET = getJwtSecret();
 
 router.post("/customer/register", async (req, res) => {
   try {
